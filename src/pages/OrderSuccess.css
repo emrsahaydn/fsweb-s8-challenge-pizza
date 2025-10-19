@@ -1,0 +1,57 @@
+body, .success-page {
+  font-family: 'Barlow', sans-serif;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.success-page {
+  background-color: #c62828;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; 
+  color: white;
+  text-align: center;
+  position: relative;
+}
+
+
+.success-header {
+  position: absolute;
+  top: 40px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.success-header img {
+  height: 45px;
+  object-fit: contain;
+}
+
+.success-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-content h1 {
+  font-size: 52px;
+  font-weight: 400;
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+.success-content h2 {
+  font-size: 48px;
+  font-weight: 300;
+  margin-top: 10px;
+  letter-spacing: 1px;
+}
