@@ -1,42 +1,131 @@
 import "./OrderForm.css";
 import logo from "../assets/logo.svg";
-import { useState } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { useHistory } from "react-router-dom";
+import axios from "axios";
 
 
 export default function OrderForm() {
-  const [size, setSize] = useState("");
-  const [dough, setDough] = useState("");
-  const [extras, setExtras] = useState([]);
-  const [note, setNote] = useState("");
-  const [count, setCount] = useState(1);
+  const history = useHistory();
 
-  const BASE_PRICE = 85.5;
-  const EXTRA_PRICE = 5;
-  const extrasTotal = extras.length * EXTRA_PRICE;
-  const total = (BASE_PRICE + extrasTotal) * count;
+  const [isim, setIsim] = useState("");
+  const [boyut, setBoyut] = useState("");
+  const [hamur, setHamur] = useState("");
+  const [malzemeler, setMalzemeler] = useState([]);
+  const [not, setNot] = useState("");
+  const [adet, setAdet] = useState(1);
+  const [gonderiliyor, setGonderiliyor] = useState(false);
+  const [gonderilecek, setGonderilecek] = useState(false);
 
-  const EXTRA_LIST = [
+  const pizzaFiyat = 85.5;
+  const malzemeFiyat = 5;
+
+  const MALZEME_LISTESI = [
     "Pepperoni", "Domates", "Biber", "Sosis", "Mısır", "Sucuk", "Ananas",
     "Kanada Jambonu", "Tavuk Parça", "Jalapeno", "Kabak", "Soğan", "Sarımsak"
   ];
 
-  const toggleExtra = (val) => {
-    if (extras.includes(val)) {
-      setExtras(extras.filter((x) => x !== val));
-    } else {
-      if (extras.length < 10) setExtras([...extras, val]);
+  const malzemeToplami = useMemo(() => malzemeler.length * malzemeFiyat, [malzemeler]);
+  const toplam = useMemo(() => (pizzaFiyat + malzemeToplami) * adet, [pizzaFiyat, malzemeToplami, adet]);
+
+  const gecerliMi = useMemo(() => {
+    const isimUygun = isim.trim().length >= 3;
+    const boyutUygun = !!boyut;
+    const hamurUygun = !!hamur;
+    const malzemeUygun = malzemeler.length >= 4 && malzemeler.length <= 10;
+    return isimUygun && boyutUygun && hamurUygun && malzemeUygun;
+  }, [isim, boyut, hamur, malzemeler]);
+
+  const gonderi = useMemo(() => ({
+    isim: isim.trim(),
+    boyut,
+    hamur,
+    malzemeler,
+    not: not.trim(),
+    adet,
+    toplam: Number(((pizzaFiyat + malzemeler.length * malzemeFiyat) * adet).toFixed(2)),
+  }), [isim, boyut, hamur, malzemeler, not, adet]);
+
+  function handleChangeIsim(e) {
+    setIsim(e.target.value);
+  }
+
+  function handleChangeBoyut(e) {
+    setBoyut(e.target.value);
+  }
+
+  function handleChangeHamur(e) {
+    setHamur(e.target.value);
+  }
+
+  function handleChangeNot(e) {
+    setNot(e.target.value);
+  }
+
+  function handleChangeMalzeme(e) {
+    const deger = e.target.value;
+    if (malzemeler.includes(deger)) {
+      setMalzemeler(malzemeler.filter((x) => x !== deger));
+    } else if (malzemeler.length < 10) {
+      setMalzemeler([...malzemeler, deger]);
     }
-  };
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!gecerliMi || gonderiliyor) return;
+    setGonderilecek(true);
+  }
+
+  useEffect(() => {
+    if (!gonderilecek) return;
+    let iptal = false;
+
+    const siparisGonder = async () => {
+      try {
+        setGonderiliyor(true);
+
+        const bodyToSend = {
+          name: isim,
+          order: { boyut, hamur, malzemeler, not, adet, toplam },
+        };
+
+        const yanit = await axios.post("https://reqres.in/api/pizza", bodyToSend, {
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": "reqres-free-v1"
+          },
+        });
+
+        if (iptal) return;
+
+        console.log("✅ API yanıtı:", yanit.data);
+        console.log("📦 Sipariş Özeti:", gonderi);
+
+        history.push("/success", { siparis: gonderi });
+      } catch (err) {
+        if (!iptal) console.error("❌ Gönderim hatası:", err);
+      } finally {
+        if (!iptal) {
+          setGonderiliyor(false);
+          setGonderilecek(false);
+        }
+      }
+    };
+
+    siparisGonder();
+    return () => { iptal = true; };
+  }, [gonderilecek]);
 
   return (
     <div className="order-page">
       <header className="header">
-        <img src={logo} alt="" className="logo" />
+        <img src={logo} alt="logo" className="logo" />
+        <p>Ana Sayfa   Sipariş Oluştur</p>
       </header>
 
       <main className="content">
-        <section className="form-col">
+        <form className="form-col" onSubmit={handleSubmit}>
           <h2>Position Absolute Acı Pizza</h2>
           <p className="price">85.50₺</p>
           <p>
@@ -47,36 +136,28 @@ export default function OrderForm() {
           <div className="size-dough">
             <div>
               <strong>Boyut Seç *</strong>
-              <div>
-                {["Küçük", "Orta", "Büyük"].map((s) => (
-                  <label key={s} style={{ display: "block" }}>
-                    <input
-                      type="radio"
-                      name="size"
-                      value={s}
-                      checked={size === s}
-                      onChange={(e) => setSize(e.target.value)}
-                    />
-                    {s}
-                  </label>
-                ))}
-              </div>
+              {["Küçük", "Orta", "Büyük"].map((b) => (
+                <label key={b} style={{ display: "block" }}>
+                  <input
+                    type="radio"
+                    name="boyut"
+                    value={b}
+                    checked={boyut === b}
+                    onChange={handleChangeBoyut}
+                  />
+                  {b}
+                </label>
+              ))}
             </div>
 
             <div>
               <strong>Hamur Seç *</strong>
-              <div>
-                <select
-                  value={dough}
-                  onChange={(e) => setDough(e.target.value)}
-                  required
-                >
-                  <option value="">Hamur Kalınlığı</option>
-                  <option value="İnce">İnce</option>
-                  <option value="Orta">Orta</option>
-                  <option value="Kalın">Kalın</option>
-                </select>
-              </div>
+              <select value={hamur} onChange={handleChangeHamur} required>
+                <option value="">Hamur Kalınlığı</option>
+                <option value="İnce">İnce</option>
+                <option value="Orta">Orta</option>
+                <option value="Kalın">Kalın</option>
+              </select>
             </div>
           </div>
 
@@ -84,13 +165,13 @@ export default function OrderForm() {
             <strong>Ek Malzemeler</strong>
             <p>En fazla 10 malzeme seçebilirsiniz. (5₺/adet)</p>
             <div className="extras-list">
-              {EXTRA_LIST.map((x) => (
+              {MALZEME_LISTESI.map((x) => (
                 <label key={x} style={{ display: "inline-block", width: 150 }}>
                   <input
                     type="checkbox"
                     value={x}
-                    checked={extras.includes(x)}
-                    onChange={() => toggleExtra(x)}
+                    checked={malzemeler.includes(x)}
+                    onChange={handleChangeMalzeme}
                   />
                   {x}
                 </label>
@@ -98,37 +179,55 @@ export default function OrderForm() {
             </div>
           </div>
 
-          <div >
-            <strong>Sipariş Notu</strong>
-            <input className="not" type="textarea"  placeholder="Siparişine eklemek istediğin bir not var mı " />
+          <div>
+            <strong>İsim *</strong>
+            <input
+              type="text"
+              value={isim}
+              onChange={handleChangeIsim}
+              placeholder="Adınızı girin"
+              required
+            />
           </div>
 
-         <div className="bottom-row">
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-                    <button type="button" onClick={() => setCount((c) => Math.max(1, c - 1))}>-</button>
-                    <span>{count}</span>
-                    <button type="button" onClick={() => setCount((c) => c + 1)}>+</button>
-                </div>
+          <div>
+            <textarea
+              className="not"
+              value={not}
+              onChange={handleChangeNot}
+              placeholder="Siparişine eklemek istediğin bir not var mı?"
+              rows={3}
+            />
+          </div>
 
-                <div className="summary-col">
-                    <div>
-                    <h3>Sipariş Toplamı</h3>
-                    <div >
-                        <span>Seçimler</span>
-                        <span>{extras.length * 5}₺</span>
-                    </div>
-                    <div >
-                        <span>Toplam</span>
-                        <span>{((85.5 + extras.length * 5) * count).toFixed(2)}₺</span>
-                    </div>
-                    <button type="button" disabled={!size || !dough}>SİPARİŞ VER</button>
-                    </div>
-                </div>
-                </div>
+          <div className="bottom-row">
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+              <button type="button" onClick={() => setAdet((a) => Math.max(1, a - 1))}>-</button>
+              <span>{adet}</span>
+              <button type="button" onClick={() => setAdet((a) => a + 1)}>+</button>
+            </div>
 
-        </section>
-
-        
+             <div className="summary-col">
+              <div>
+                <h3>Sipariş Toplamı</h3>
+                <div>
+                  <span>Seçimler</span>
+                  <span>{malzemeToplami}₺</span>
+                </div>
+                <div>
+                  <span>Toplam</span>
+                  <span>{toplam.toFixed(2)}₺</span>
+                </div>
+                <button
+                  type="submit"
+                  disabled={!gecerliMi || gonderiliyor}
+                >
+                  {gonderiliyor ? "Gönderiliyor..." : "SİPARİŞ VER"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
       </main>
     </div>
   );

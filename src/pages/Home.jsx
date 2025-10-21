@@ -1,7 +1,9 @@
 import React from "react";
 import "./Home.css";
+import { useHistory } from "react-router-dom";
 
 export default function Home() {
+    const history = useHistory();
   return (
     <>
       <section className="hero-content">
@@ -13,7 +15,7 @@ export default function Home() {
             KOD ACIKTIRIR <br /> PİZZA, DOYURUR
           </p>
         </div>
-        <button className="btn">Acıktım</button>
+        <button className="btn" onClick={()=>history.push("/order")}>Acıktım</button>
       </section>
 
       <section className="icons">
@@ -52,7 +54,7 @@ export default function Home() {
                 Özel <br /> Lezzetus
               </p>
               <p className="p2">Position: Absolute Acı Burger</p>
-              <button className="p3">SİPARİŞ VER</button>
+              <button onClick={()=>history.push("/order")} className="p3">SİPARİŞ VER</button>
             </div>
 
             <div className="right-cards">
@@ -61,7 +63,7 @@ export default function Home() {
                 <p className="p1">
                   Hackathlon <br /> Burger Menü
                 </p>
-                <button className="p3">SİPARİŞ VER</button>
+                <button onClick={()=>history.push("/order")} className="p3">SİPARİŞ VER</button>
               </div>
 
               <div className="img-3">
@@ -70,7 +72,7 @@ export default function Home() {
                   <span style={{ color: "red" }}> Çoooook</span> <span style={{fontWeight:"bold"}}>hızlı <br /> npm
                   gibi kurye</span> 
                 </p>
-                <button className="p3">SİPARİŞ VER</button>
+                <button onClick={()=>history.push("/order")} className="p3">SİPARİŞ VER</button>
               </div>
             </div>
           </div>
