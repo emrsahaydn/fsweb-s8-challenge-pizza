@@ -54,7 +54,7 @@ export default function Home() {
                 Özel <br /> Lezzetus
               </p>
               <p className="p2">Position: Absolute Acı Burger</p>
-              <button onClick={()=>history.push("/order")} className="p3">SİPARİŞ VER</button>
+              <button  onClick={()=>history.push("/order")} className="p3">SİPARİŞ VER</button>
             </div>
 
             <div className="right-cards">
@@ -69,8 +69,10 @@ export default function Home() {
               <div className="img-3">
                 <img src="images/iteration-2-images/cta/kart-3.png" alt="" />
                 <p className="p2">
-                  <span style={{ color: "red" }}> Çoooook</span> <span style={{fontWeight:"bold"}}>hızlı <br /> npm
-                  gibi kurye</span> 
+                  <span style={{ color: "red", marginRight: "8px" }}>Çoooook</span>
+                  <span style={{ fontWeight: "bold" }}>
+                    hızlı <br /> npm gibi kurye
+                  </span>
                 </p>
                 <button onClick={()=>history.push("/order")} className="p3">SİPARİŞ VER</button>
               </div>
@@ -152,13 +154,13 @@ export default function Home() {
             <h2>
               Teknolojik <br /> Yemekler
             </h2>
-            <ul className="contact-info">
+            <ul className="contact-info" style={{color:"white"}}>
               <li>
                 <img
                   src="images/iteration-2-images/footer/icons/icon-1.png"
                   alt="Adres"
                 />
-                <span>
+                <span style={{color:"white"}}>
                   341 Londonderry Road,
                   <br /> Istanbul Türkiye
                 </span>
@@ -168,7 +170,7 @@ export default function Home() {
                   src="images/iteration-2-images/footer/icons/icon-2.png"
                   alt="Mail"
                 />
-                <a href="mailto:aciktim@teknolojikyemekler.com">
+                <a href="mailto:aciktim@teknolojikyemekler.com" style={{color:"white"}}>
                   aciktim@teknolojikyemekler.com
                 </a>
               </li>
@@ -177,7 +179,7 @@ export default function Home() {
                   src="images/iteration-2-images/footer/icons/icon-3.png"
                   alt="Telefon"
                 />
-                <a href="tel:+902161234567">+90 216 123 45 67</a>
+                <a style={{color:"white"}} href="tel:+902161234567">+90 216 123 45 67</a>
               </li>
             </ul>
           </div>

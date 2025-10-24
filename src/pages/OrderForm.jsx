@@ -1,8 +1,9 @@
 import "./OrderForm.css";
 import logo from "../assets/logo.svg";
 import { useState, useEffect, useMemo } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory,NavLink } from "react-router-dom";
 import axios from "axios";
+import banner from "../assets/form-banner.png";
 
 
 export default function OrderForm() {
@@ -121,67 +122,108 @@ export default function OrderForm() {
     <div className="order-page">
       <header className="header">
         <img src={logo} alt="logo" className="logo" />
-        <p>Ana Sayfa   Sipariş Oluştur</p>
       </header>
 
       <main className="content">
-        <form className="form-col" onSubmit={handleSubmit}>
+        <div className="pizza-info">
+            <img src={banner} alt="" />
+            <ul>
+              <li>
+                <NavLink exact to="/" activeClassName="active-link">
+                  Anasayfa
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/order" activeClassName="active-link">
+                  Sipariş Oluştur
+                </NavLink>
+              </li>
+            </ul>
           <h2>Position Absolute Acı Pizza</h2>
+          <div className="degerlendirme-tamamı">
           <p className="price">85.50₺</p>
+          
+          <p>4.9</p>
+          <p>(200)</p>
+          
+          </div>
           <p>
-            Frontend dev olarak hâlâ <code>position:absolute</code> kullanıyorsan
-            bu çok acı pizza tam sana göre...
+            Frontend Dev olarak hala position:absolute kullaniyorsan bu çok acı pizza tam <br />  sana gore.Pizza, domates, peynir ve genellik çesitli diğer malzemelerle <br /> kaplanmış, daha sonra geleneksel olarak odun ateşinde bir fırında yüksek <br /> sıcaklıkta pişirilen, genellikle yuvarlak, düzlestirilmiş mayalı buğday bazlı <br /> hamurdan olusan italyan kökeni lezzetli bir yemektir. Küçük bir pizzaya <br /> bazen pizzetta denir.
           </p>
+          </div>
+        <form className="form-col" onSubmit={handleSubmit} data-cy="order-form">
+          
 
           <div className="size-dough">
-            <div>
+            <div data-cy="size-group">
               <strong>Boyut Seç *</strong>
-              {["Küçük", "Orta", "Büyük"].map((b) => (
-                <label key={b} style={{ display: "block" }}>
-                  <input
-                    type="radio"
-                    name="boyut"
-                    value={b}
-                    checked={boyut === b}
-                    onChange={handleChangeBoyut}
-                  />
-                  {b}
-                </label>
-              ))}
+              <div className="boyut-secenekler">
+                {["S", "M", "B"].map((b) => (
+                  <label key={b} data-cy={`size-${b}`}>
+                    <input
+                      type="radio"
+                      name="boyut"
+                      value={b}
+                      checked={boyut === b}
+                      onChange={handleChangeBoyut}
+                    />
+                    <span>{b.charAt(0)}</span>
+                  </label>
+                ))}
+              </div>
             </div>
 
-            <div>
+            <div data-cy="dough-group">
               <strong>Hamur Seç *</strong>
-              <select value={hamur} onChange={handleChangeHamur} required>
-                <option value="">Hamur Kalınlığı</option>
-                <option value="İnce">İnce</option>
-                <option value="Orta">Orta</option>
-                <option value="Kalın">Kalın</option>
-              </select>
+
+              <div className="select-wrap">
+                <select
+                  className="select-input"
+                  value={hamur}
+                  onChange={handleChangeHamur}
+                  required
+                  data-cy="dough"
+                >
+                  <option value="" disabled>
+                    —Hamur Kalınlığı Seç—
+                  </option>
+                  <option value="İnce">İnce</option>
+                  <option value="Orta">Orta</option>
+                  <option value="Kalın">Kalın</option>
+                </select>
+              </div>
             </div>
+
           </div>
 
-          <div>
+
+          <div data-cy="toppings">
             <strong>Ek Malzemeler</strong>
             <p>En fazla 10 malzeme seçebilirsiniz. (5₺/adet)</p>
+
             <div className="extras-list">
               {MALZEME_LISTESI.map((x) => (
-                <label key={x} style={{ display: "inline-block", width: 150 }}>
+                <label className="extra" key={x} data-cy={`topping-${x}`}>
                   <input
+                    className="extra-input"
                     type="checkbox"
                     value={x}
                     checked={malzemeler.includes(x)}
                     onChange={handleChangeMalzeme}
                   />
-                  {x}
+                  <span className="extra-box" aria-hidden="true"></span>
+                  <span className="extra-text">{x}</span>
                 </label>
               ))}
             </div>
           </div>
 
-          <div>
+
+          <div >
             <strong>İsim *</strong>
             <input
+              data-cy="name"
+              className="isim-input"
               type="text"
               value={isim}
               onChange={handleChangeIsim}
@@ -192,6 +234,7 @@ export default function OrderForm() {
 
           <div>
             <textarea
+              data-cy="notes"
               className="not"
               value={not}
               onChange={handleChangeNot}
@@ -201,24 +244,25 @@ export default function OrderForm() {
           </div>
 
           <div className="bottom-row">
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-              <button type="button" onClick={() => setAdet((a) => Math.max(1, a - 1))}>-</button>
-              <span>{adet}</span>
-              <button type="button" onClick={() => setAdet((a) => a + 1)}>+</button>
+            <div data-cy="count-row" style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+              <button data-cy="decrease-btn" style={{backgroundColor:"#FDC913"}} type="button" onClick={() => setAdet((a) => Math.max(1, a - 1))}>-</button>
+              <span data-cy="quantity">{adet}</span>
+              <button data-cy="increase-btn" style={{backgroundColor:"#FDC913"}} type="button" onClick={() => setAdet((a) => a + 1)}>+</button>
             </div>
 
-             <div className="summary-col">
+             <div className="summary-col" data-cy="summary">
               <div>
                 <h3>Sipariş Toplamı</h3>
-                <div>
+                <div data-cy="summary-selections">
                   <span>Seçimler</span>
                   <span>{malzemeToplami}₺</span>
                 </div>
-                <div>
+                <div data-cy="summary-total">
                   <span>Toplam</span>
                   <span>{toplam.toFixed(2)}₺</span>
                 </div>
                 <button
+                  data-cy="submit"
                   type="submit"
                   disabled={!gecerliMi || gonderiliyor}
                 >
@@ -229,6 +273,92 @@ export default function OrderForm() {
           </div>
         </form>
       </main>
+      <footer>
+        <div className="footer-container">
+          <div className="footer-left">
+            <h2>
+              Teknolojik <br /> Yemekler
+            </h2>
+            <ul className="contact-info" style={{color:"white"}}>
+              <li>
+                <img
+                  src="images/iteration-2-images/footer/icons/icon-1.png"
+                  alt="Adres"
+                />
+                <span style={{color:"white"}}>
+                  341 Londonderry Road,
+                  <br /> Istanbul Türkiye
+                </span>
+              </li>
+              <li>
+                <img
+                  src="images/iteration-2-images/footer/icons/icon-2.png"
+                  alt="Mail"
+                />
+                <a href="mailto:aciktim@teknolojikyemekler.com" style={{color:"white"}}>
+                  aciktim@teknolojikyemekler.com
+                </a>
+              </li>
+              <li>
+                <img
+                  src="images/iteration-2-images/footer/icons/icon-3.png"
+                  alt="Telefon"
+                />
+                <a style={{color:"white"}} href="tel:+902161234567">+90 216 123 45 67</a>
+              </li>
+            </ul>
+          </div>
+
+          <div className="footer-middle">
+            <h3>Hot Menu</h3>
+            <ul>
+              <li>Terminal Pizza</li>
+              <li>5 Kişilik Hackathlon Pizza</li>
+              <li>useEffect Tavuklu Pizza</li>
+              <li>Beyaz Console Frosty</li>
+              <li>Testler Geçti Mutlu Burger</li>
+              <li>Position Absolute Acı Burger</li>
+            </ul>
+          </div>
+
+          <div className="footer-right">
+            <h3>Instagram</h3>
+            <div className="instagram-grid">
+              <img
+                src="images/iteration-2-images/footer/insta/li-0.png"
+                alt="insta1"
+              />
+              <img
+               src="images/iteration-2-images/footer/insta/li-1.png"
+                alt="insta2"
+              />
+              <img
+                src="images/iteration-2-images/footer/insta/li-2.png"
+                alt="insta3"
+              />
+              <img
+                src="images/iteration-2-images/footer/insta/li-3.png"
+                alt="insta4"
+              />
+              <img
+                src="images/iteration-2-images/footer/insta/li-4.png"
+                alt="insta5"
+              />
+              <img
+                src="images/iteration-2-images/footer/insta/li-5.png"
+                alt="insta6"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="footer-bottom">
+          <p>© 2023 Teknolojik Yemekler.</p>
+          <div className="social-icons">
+            <a href="#" className="fa fa-twitter"></a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
